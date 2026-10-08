@@ -1,54 +1,42 @@
-# ================ #
-#    Base Stage    #
-# ================ #
+# syntax=docker/dockerfile:1
+# SPDX-FileCopyrightText: 2026 Axle Duggan (axlecoffee) <contact@axle.coffee>
+# SPDX-License-Identifier: AGPL-3.0-only
+FROM rust:1.99.0-alpine3.24 AS tools
+RUN apk add --no-cache build-base cmake ca-certificates
+RUN rustup target add wasm32-unknown-unknown \
+    && cargo install trunk --version 0.21.14 --locked
+WORKDIR /build
 
-FROM node:24-alpine AS base
+FROM tools AS source
+COPY Cargo.toml Cargo.lock README.md LICENSE.md THIRD_PARTY_NOTICES REUSE.toml Dockerfile docker-compose.yml .dockerignore .gitignore ./
+COPY LICENSES/ LICENSES/
+COPY .env.example ./
+COPY server/ server/
+COPY web/ web/
+COPY .github/workflows/ .github/workflows/
+# Keep offered source separate from generated assets and compiler output.
+RUN mkdir -p /source/.cargo \
+    && cp -a . /source/ \
+    && cd /source \
+    && cargo vendor --locked vendor > .cargo/config.toml \
+    && tar -czf /source.tar.gz .
 
-WORKDIR /usr/src/app
+FROM source AS frontend
+WORKDIR /build/web
+RUN trunk build --release --locked --public-url /assets/ --dist /build/web/dist
 
-RUN apk add --no-cache dumb-init g++ make python3
+FROM source AS backend
+RUN cargo build --locked --release -p haste-server
 
-COPY --chown=node:node yarn.lock .
-COPY --chown=node:node package.json .
-COPY --chown=node:node .yarnrc.yml .
-COPY --chown=node:node README.md .
-COPY --chown=node:node .yarn/ .yarn/
-
-ENTRYPOINT ["dumb-init", "--"]
-
-# ================ #
-#   Builder Stage  #
-# ================ #
-
-FROM base AS builder
-
-ENV NODE_ENV="development"
-
-COPY --chown=node:node tsconfig.json .
-COPY --chown=node:node vite.config.ts .
-COPY --chown=node:node tsup.config.ts .
-COPY --chown=node:node src/ src/
-
-RUN yarn install --immutable \
-    && yarn build
-
-# ================ #
-#   Runner Stage   #
-# ================ #
-
-FROM base AS runner
-
-ENV NODE_ENV="production"
-ENV NODE_OPTIONS="--enable-source-maps"
-ENV HOST=0.0.0.0
-ENV PORT=8290
-
-COPY --chown=node:node --from=builder /usr/src/app/dist dist
-
-RUN yarn workspaces focus --all --production
-
-EXPOSE 8290
-
-USER node
-
-CMD [ "yarn", "run", "start"]
+FROM alpine:3.24 AS runtime
+RUN apk add --no-cache ca-certificates
+WORKDIR /app
+COPY --from=backend /build/target/release/haste-server /usr/local/bin/haste-server
+COPY --from=frontend /build/web/dist/ /app/assets/
+COPY --from=source /source.tar.gz /app/source.tar.gz
+COPY LICENSES/ /app/LICENSES/
+COPY LICENSE.md THIRD_PARTY_NOTICES /app/
+ENV PORT=8292 ASSET_DIR=/app/assets SOURCE_ARCHIVE=/app/source.tar.gz
+USER 1000:1000
+EXPOSE 8292
+ENTRYPOINT ["/usr/local/bin/haste-server"]

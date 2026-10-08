@@ -1,4 +1,6 @@
-name: Continuous Integration
+# SPDX-FileCopyrightText: 2026 Axle Duggan (axlecoffee) <contact@axle.coffee>
+# SPDX-License-Identifier: AGPL-3.0-only
+name: Rust checks
 
 on:
   push:
@@ -6,37 +8,24 @@ on:
       - main
   pull_request:
 
-jobs:
-  Linting:
-    name: Linting NodeJS
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Project
-        uses: actions/checkout@v6
-      - name: Add problem matchers
-        run: echo "::add-matcher::.github/problemMatchers/eslint.json"
-      - name: Use Node.js v20
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: yarn
-      - name: Install Dependencies
-        run: yarn --immutable
-      - name: Run ESLint
-        run: yarn lint --fix=false
+permissions:
+  contents: read
 
-  Building:
-    name: Building NodeJS
+jobs:
+  check:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Project
-        uses: actions/checkout@v6
-      - name: Use Node.js v20
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: yarn
-      - name: Install Dependencies
-        run: yarn --immutable
-      - name: Build code
-        run: yarn build
+      - uses: actions/checkout@v6
+      - name: Check licenses
+        run: |
+          pipx install reuse==6.2.0
+          reuse lint
+      - name: Check native Rust
+        run: |
+          rustup toolchain install 1.99.0 --profile minimal
+          cargo +1.99.0 check --locked --workspace
+          cargo +1.99.0 test --locked --workspace
+      - name: Validate Compose without credentials
+        run: |
+          cp .env.example .env
+          docker compose config --quiet

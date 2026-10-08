@@ -1,0 +1,29 @@
+# SPDX-FileCopyrightText: 2026 Axle Duggan (axlecoffee) <contact@axle.coffee>
+# SPDX-License-Identifier: AGPL-3.0-only
+**
+!Cargo.toml
+!Cargo.lock
+!Dockerfile
+!docker-compose.yml
+!.dockerignore
+!.gitignore
+!README.md
+!LICENSE.md
+!THIRD_PARTY_NOTICES
+!REUSE.toml
+!LICENSES/
+!LICENSES/**
+!server/
+!server/**
+!web/
+!web/**
+!.github/
+!.github/workflows/
+!.github/workflows/**
+**/target
+**/dist
+**/.env
+**/*.env
+**/.env.*
+**/*.log
+!.env.example

@@ -1,0 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Axle Duggan (axlecoffee) <contact@axle.coffee>
+# SPDX-License-Identifier: AGPL-3.0-only
+[build]
+# use the bundle hash to invalidate the external loader alongside the WASM
+pattern_script = '<script type="module" src="{base}boot.js?v={js}" data-js="{base}{js}" data-wasm="{base}{wasm}"></script>'

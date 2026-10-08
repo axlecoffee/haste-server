@@ -1,0 +1,44 @@
+hst.axle.coffee is an independent Rust implementation of the Haste paste interface.
+New work: Copyright 2026 Axle Duggan (axlecoffee) <contact@axle.coffee>.
+New work is licensed under AGPL-3.0-only; see LICENSE.md.
+
+Original Haste interface and protocol: John Crepezzi (seejohnrun), haste-server.
+The historical seejohnrun/haste-server location is credited as an origin,
+not offered as the source of this Rust deployment.
+
+Previous TypeScript implementation: https://github.com/skyra-project/haste-server
+Catppuccin Mocha palette: https://github.com/catppuccin/catppuccin
+Both retain the MIT terms below; they are not relicensed as AGPL-only.
+
+MIT License
+
+Copyright (c) 2020 Skyra Project
+Copyright (c) 2021 Catppuccin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+The distributed /source.tar.gz includes Cargo.lock, all Rust application source,
+build scripts, Docker packaging, and vendored Rust dependency source and notices.
+Dependencies retain their individual licenses; see each vendor package's license
+files and Cargo.toml. /syntax-notices.txt contains the acknowledgements embedded
+by two-face for its syntax and theme data, including the Catppuccin theme.
+
+Rust .gitignore template: https://github.com/github/gitignore/blob/main/Rust.gitignore
+Released by its contributors under CC0-1.0. Project-specific entries follow
+the unmodified template, under the same terms.

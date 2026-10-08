@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2026 Axle Duggan (axlecoffee) <contact@axle.coffee>
+# SPDX-License-Identifier: AGPL-3.0-only
+version = 1
+SPDX-PackageName = "hst.axle.coffee"
+SPDX-PackageSupplier = "Axle Duggan (axlecoffee) <contact@axle.coffee>"
+
+[[annotations]]
+path = "Cargo.lock"
+SPDX-FileCopyrightText = "2026 Axle Duggan (axlecoffee) <contact@axle.coffee>"
+SPDX-License-Identifier = "AGPL-3.0-only"
+
+[[annotations]]
+path = "LICENSE.md"
+SPDX-FileCopyrightText = "2007 Free Software Foundation, Inc. <https://fsf.org/>"
+SPDX-License-Identifier = "AGPL-3.0-only"
+
+[[annotations]]
+path = ".gitignore"
+SPDX-FileCopyrightText = ["github/gitignore contributors", "2026 Axle Duggan (axlecoffee) <contact@axle.coffee>"]
+SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
+path = "web/style.css"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2021 Catppuccin"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "THIRD_PARTY_NOTICES"
+SPDX-FileCopyrightText = ["2026 Axle Duggan (axlecoffee) <contact@axle.coffee>", "2020 Skyra Project", "2021 Catppuccin"]
+SPDX-License-Identifier = "AGPL-3.0-only AND MIT"
