@@ -110,8 +110,10 @@ source archive's `vendor/` tree~
 
 ```sh
 reuse lint
+cargo fmt --all -- --check
+cargo clippy --locked --workspace -- -D warnings
 cargo check --locked --workspace
-cargo test --locked -p haste-server
+cargo test --locked --workspace
 docker compose config --quiet
 docker build --check .
 ```

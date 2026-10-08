@@ -1598,7 +1598,6 @@ dependencies = [
  "leptos",
  "pulldown-cmark",
  "serde",
- "serde_json",
  "two-face",
  "wasm-bindgen",
  "web-sys",

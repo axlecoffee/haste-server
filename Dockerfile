@@ -14,7 +14,7 @@ COPY .env.example ./
 COPY server/ server/
 COPY web/ web/
 COPY .github/workflows/ .github/workflows/
-# Keep offered source separate from generated assets and compiler output.
+# keep offered source separate from generated assets and compiler output
 RUN mkdir -p /source/.cargo \
     && cp -a . /source/ \
     && cd /source \

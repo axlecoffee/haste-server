@@ -22,7 +22,9 @@ jobs:
           reuse lint
       - name: Check native Rust
         run: |
-          rustup toolchain install 1.99.0 --profile minimal
+          rustup toolchain install 1.99.0 --profile minimal --component rustfmt,clippy
+          cargo +1.99.0 fmt --all -- --check
+          cargo +1.99.0 clippy --locked --workspace -- -D warnings
           cargo +1.99.0 check --locked --workspace
           cargo +1.99.0 test --locked --workspace
       - name: Validate Compose without credentials
