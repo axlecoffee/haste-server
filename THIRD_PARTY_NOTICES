@@ -1,9 +1,9 @@
 hst.axle.coffee is an independent Rust implementation of the Haste paste interface.
 New work: Copyright 2026 Axle Duggan (axlecoffee) <contact@axle.coffee>.
-New work is licensed under AGPL-3.0-only; see LICENSE.md.
+Licensed AGPL-3.0-only; see LICENSE.md.
 
 Original Haste interface and protocol: John Crepezzi (seejohnrun), haste-server.
-The historical seejohnrun/haste-server location is credited as an origin,
+The historical seejohnrun/haste-server location is credited as an origin. It is
 not offered as the source of this Rust deployment.
 
 Previous TypeScript implementation: https://github.com/skyra-project/haste-server
@@ -33,12 +33,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-The distributed /source.tar.gz includes Cargo.lock, all Rust application source,
-build scripts, Docker packaging, and vendored Rust dependency source and notices.
-Dependencies retain their individual licenses; see each vendor package's license
-files and Cargo.toml. /syntax-notices.txt contains the acknowledgements embedded
-by two-face for its syntax and theme data, including the Catppuccin theme.
+The distributed /source.tar.gz covers Cargo.lock, all Rust application source,
+build scripts, Docker packaging, and vendored Rust dependency source and
+notices. Dependencies keep their own licenses; see each vendor package's
+license files and Cargo.toml. /syntax-notices.txt carries the acknowledgements
+two-face embeds for its syntax and theme data, including the Catppuccin theme.
 
 Rust .gitignore template: https://github.com/github/gitignore/blob/main/Rust.gitignore
 Released by its contributors under CC0-1.0. Project-specific entries follow
-the unmodified template, under the same terms.
+the unmodified template under the same terms.
