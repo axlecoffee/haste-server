@@ -38,6 +38,8 @@ build scripts, Docker packaging, and vendored Rust dependency source and
 notices. Dependencies keep their own licenses; see each vendor package's
 license files and Cargo.toml. /syntax-notices.txt carries the acknowledgements
 two-face embeds for its syntax and theme data, including the Catppuccin theme.
+Language detection uses linguist, which embeds GitHub Linguist's language and
+heuristic definitions, MIT, GitHub and contributors.
 
 Rust .gitignore template: https://github.com/github/gitignore/blob/main/Rust.gitignore
 Released by its contributors under CC0-1.0. Project-specific entries follow

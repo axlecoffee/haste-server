@@ -2,7 +2,11 @@
 /* SPDX-FileCopyrightText: 2021 Catppuccin */
 /* SPDX-License-Identifier: AGPL-3.0-only AND MIT */
 :root { color-scheme: dark; font-family: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, monospace; color: #cdd6f4; background: #1e1e2e; }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; scrollbar-color: #45475a #11111b; scrollbar-width: thin; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #11111b; }
+::-webkit-scrollbar-thumb { background: #45475a; border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: #585b70; }
 body { margin: 0; }
 main { height: 100dvh; display: flex; flex-direction: column; }
 header { min-height: 36px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 20px; }

@@ -63,6 +63,107 @@ fn language_name(code: &str) -> String {
     }
 }
 
+// #!/usr/bin/env python3 names the language outright
+fn shebang(text: &str) -> Option<&'static str> {
+    let line = text.lines().next()?.strip_prefix("#!")?;
+    let mut words = line.split_whitespace();
+    let mut interpreter = words.next()?;
+    if interpreter.ends_with("/env") {
+        interpreter = words.next()?;
+    }
+    let interpreter = interpreter.rsplit('/').next().unwrap_or(interpreter);
+    match interpreter.trim_end_matches(|c: char| c.is_ascii_digit()) {
+        "python" => Some("py"),
+        "node" => Some("js"),
+        "bash" | "sh" | "zsh" | "dash" => Some("sh"),
+        _ => None,
+    }
+}
+
+// linguist names line up with the picker labels
+fn code_for_name(name: &str) -> Option<&'static str> {
+    LANGUAGES
+        .iter()
+        .find(|(_, label)| *label == name)
+        .map(|(value, _)| *value)
+}
+
+// linguist's .h rules are the one content-driven split it ships, the C family
+fn linguist_header(text: &str) -> Option<&'static str> {
+    if !text.contains("#include") {
+        return None;
+    }
+    let hits = linguist::disambiguate("probe.h", text).ok()?;
+    code_for_name(hits.first()?.name)
+}
+
+// linguist trusts extensions for unambiguous languages, so nameless pastes of
+// those fall back to a keyword table, two hits or it stays plain
+const MARKERS: [(&str, &[&str]); 13] = [
+    ("md", &["```", "# ", "](", "## "]),
+    (
+        "cpp",
+        &["std::", "cout", "template<", "namespace ", "public:"],
+    ),
+    (
+        "c",
+        &["#include", "int main", "printf(", "struct ", "malloc("],
+    ),
+    ("rs", &["fn ", "let ", "use ", "impl ", "println!"]),
+    (
+        "java",
+        &["public ", "private ", "void ", "static ", "System."],
+    ),
+    ("kt", &["fun ", "val ", "override ", "object "]),
+    ("py", &["def ", "import ", "elif ", "self", "print("]),
+    ("ts", &["interface ", ": string", ": number", "export "]),
+    ("js", &["function ", "const ", "=>", "console."]),
+    ("go", &["func ", "package ", ":=", "fmt.", "defer "]),
+    ("sh", &["if [", "$(", "echo ", "fi", "esac"]),
+    ("html", &["</", "<div", "<html", "<body", "class="]),
+    (
+        "css",
+        &["color:", "margin:", "padding:", "@media", "display:"],
+    ),
+];
+
+fn markers(text: &str) -> Option<&'static str> {
+    let mut best = None;
+    let mut best_score = 1;
+    for (code, words) in MARKERS {
+        let score = words
+            .iter()
+            .copied()
+            .filter(|word| text.contains(*word))
+            .count();
+        if score > best_score {
+            best = Some(code);
+            best_score = score;
+        }
+    }
+    best
+}
+
+fn detect(text: &str) -> Option<&'static str> {
+    if let Some(code) = shebang(text) {
+        return Some(code);
+    }
+    if let Some(code) = linguist_header(text) {
+        return Some(code);
+    }
+    markers(text)
+}
+
+// a real name gets linguist's take first, then the content guesses for itself
+fn guess_language(id: &str, text: &str) -> Option<&'static str> {
+    if let Ok(hits) = linguist::disambiguate(id, text)
+        && let Some(code) = hits.first().and_then(|hit| code_for_name(hit.name))
+    {
+        return Some(code);
+    }
+    detect(text)
+}
+
 async fn fetch_document(id: &str) -> Result<String, &'static str> {
     let response = Request::get(&format!("/documents/{id}"))
         .send()
@@ -135,6 +236,11 @@ impl Page {
             None => "txt".into(),
         };
         let language = extension.to_ascii_lowercase();
+        // reserved pages and known extensions speak for themselves
+        let guess = match id.split_once('.') {
+            Some(_) => !LANGUAGES.iter().any(|(value, _)| *value == language),
+            None => !matches!(id.as_str(), "about" | "readme"),
+        };
         self.preview
             .set(matches!(language.as_str(), "md" | "markdown"));
         self.language.set(language);
@@ -149,7 +255,13 @@ impl Page {
                 return;
             }
             match result {
-                Ok(text) => self.text.set(text),
+                Ok(text) => {
+                    if guess && let Some(code) = guess_language(&id, &text) {
+                        self.language.set(code.to_owned());
+                        self.preview.set(matches!(code, "md" | "markdown"));
+                    }
+                    self.text.set(text);
+                }
                 Err(message) => self.error.set(message.into()),
             }
             self.busy.set(false);
@@ -401,7 +513,17 @@ fn App() -> impl IntoView {
                     <textarea node_ref=editor aria-label="Document text" spellcheck="false" autofocus
                         prop:value=move || page.text.get()
                         disabled=move || page.busy.get()
-                        on:input=move |event| page.text.set(event_target_value(&event))
+                        on:input=move |event| {
+                            let text = event_target_value(&event);
+                            // first content into an empty editor names itself when it can
+                            if page.text.get_untracked().is_empty()
+                                && page.language.get_untracked() == "txt"
+                                && let Some(code) = detect(&text)
+                            {
+                                page.language.set(code.to_owned());
+                            }
+                            page.text.set(text);
+                        }
                         on:scroll=move |_| {
                             if let (Some(input), Some(lines)) = (editor.get(), gutter.get()) {
                                 lines.set_scroll_top(input.scroll_top());
@@ -441,4 +563,35 @@ fn App() -> impl IntoView {
 fn main() {
     console_error_panic_hook::set_once();
     leptos::mount::mount_to_body(App);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn detects_common_languages() {
+        assert_eq!(detect("#!/usr/bin/env python3\nprint(1)\n"), Some("py"));
+        assert_eq!(
+            detect("public class A {\n    private void b() {}\n}\n"),
+            Some("java")
+        );
+        assert_eq!(
+            detect("fn main() {\n    let mut x = 1;\n    println!(\"{x}\");\n}\n"),
+            Some("rs")
+        );
+        assert_eq!(detect("just a note about class and public things\n"), None);
+    }
+
+    #[test]
+    fn headers_disambiguate_through_linguist() {
+        let cpp = "#include <iostream>\nint main() { std::cout << 1; }";
+        // a .h name plus content settles the family
+        assert_eq!(guess_language("code.h", cpp), Some("cpp"));
+        assert_eq!(detect(cpp), Some("cpp"));
+        assert_eq!(
+            detect("#include <stdio.h>\nint main() { printf(\"x\"); }\n"),
+            Some("c")
+        );
+    }
 }
